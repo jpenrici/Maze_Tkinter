@@ -45,14 +45,19 @@ class Maze():
         self.first = self.first[::-1]
         self.last = self.last[::-1]
 
-    def __str__(self):
+    def show(self):
         rows, cols = self.size
-        out = "Maze ({},{})\nInput {}\nOutput {}".format(rows, cols,
-                    self.first, self.last)
+        out = ""
         for i in range(len(self.maze)):
             if i % cols == 0:
                 out += "\n"
             out += '#' if self.maze[i] else '.'
+        print(out)        
+
+    def __str__(self):
+        rows, cols = self.size
+        out = "Maze ({},{}) : Input {} Output {}".format(rows, cols,
+                    self.first, self.last)
         return out
 
 
@@ -64,3 +69,4 @@ if __name__ == '__main__':
     print(maze)
     maze.reverse()
     print(maze)
+    maze.show()
