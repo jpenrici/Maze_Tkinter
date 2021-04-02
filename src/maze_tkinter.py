@@ -49,27 +49,43 @@ class MazeGUI(Frame):
 
     def paint(self, event):
         x, y = event.x, event.y
-        if x < self.borderX or x > (self.width - self.borderX): return
-        if y < self.borderY or y > (self.height - self.borderY): return
+        if x < self.borderX or x > (self.width - self.borderX):
+            return
+        if y < self.borderY or y > (self.height - self.borderY):
+            return
 
         mx = int((x - self.borderX) / self.size)
         my = int((y - self.borderY) / self.size)
-        if self.maze.maze[my * self.cols + mx]:
+        if self.maze.matrix[my * self.cols + mx] == 0:
             messagebox.showinfo("Error", "Try again!")
             self.render()
             return
 
+        if self.maze.matrix[my * self.cols + mx] == 2:
+            if (mx, my) not in self.route:
+                self.route += [(mx, my)]
+
         self.canvas.create_oval(x - 1, y - 1, x + 1, y + 1)
+
+        if (mx, my) == self.maze.route[0] or (mx, my) == self.maze.route[-1]:
+            route = self.route[::-1]
+            if self.maze.route == self.route or self.maze.route == route:
+                messagebox.showinfo("Congratulations", "Try new challenge!")
+                self.make()
+                return
 
     def make(self):
         style = [[10, 40], [12, 30], [15, 28], [18, 24], [20, 20], [25, 16],
             [30, 14], [35, 12], [45, 10]]  # [Cells, Size]
         self.cells, self.size = choice(style)
-        self.maze = Maze(self.cells, self.cells)
-        if choice([True, False]): self.maze.reverse()
+        model = choice(["basic", "spiral"])
+        self.maze = Maze(self.cells, self.cells, model)
+        if choice([True, False]):
+            self.maze.reverse()
         self.render()
 
     def render(self):
+        self.route = []
         self.rows, self.cols = self.maze.size
         self.canvas.create_rectangle(0, 0, self.width, self.height, fill="#fff")
         self.borderX = (self.width - (self.size * self.cols)) / 2
@@ -78,9 +94,11 @@ class MazeGUI(Frame):
         for r in range(self.rows):
             x = self.borderX
             for c in range(self.cols):
-                fill = "#00f" if self.maze.maze[r * self.cols + c] else "#fff"
-                if [c, r] == self.maze.first: fill = "#0f0"
-                if [c, r] == self.maze.last: fill = "#f00"
+                fill = "#fff" if self.maze.matrix[r * self.cols + c] else "#00f"
+                if (c, r) == self.maze.route[0]:
+                    fill = "#0f0"
+                if (c, r) == self.maze.route[-1]:
+                    fill = "#f00"
                 self.canvas.create_rectangle(x, y, x + self.size, y + self.size,
                     fill=fill)
                 x += self.size
